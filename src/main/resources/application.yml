@@ -1,0 +1,22 @@
+server:
+  port: 8082
+spring:
+  application:
+    name: service-oss
+
+#logging:
+#  level:
+#    root: debug
+
+aliyun:
+  oss:
+    file:
+      endpoint: https://oss-cn-hangzhou.aliyuncs.com
+      accessKeyId: LTAI5t5yrEAECKttAs1WyCDt
+      accessKeySecret: QactfiBenzjbVaPXcUa4LkCMo3I0t9
+      bucketName: badfox
+      count: 3
+      outTime: 1000 #ms
+
+
+
