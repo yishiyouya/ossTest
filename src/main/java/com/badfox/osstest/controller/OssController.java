@@ -121,6 +121,18 @@ public class OssController {
         return result;
     }
 
+    @RequestMapping("/limitSpeedDownloadFile")
+    public String rspLimitSpeedDownloadFile(@RequestParam("objectName") String objectName,
+                                  @RequestParam(value = "pathName", required = false) String pathName,
+                                            @RequestParam(value = "limitSpeed", required = false) Integer limitSpeed)
+            throws Exception {
+
+        //// 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
+        //// 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
+        String result = ossDownloadService.limitSpeedDownloadFile(objectName, pathName, limitSpeed);
+        return result;
+    }
+
     @RequestMapping("/bufferDownloadFile")
     public String rspBufferDownloadFile(@RequestParam("objectName") String objectName,
                                         @RequestParam(value = "pathName", required = false) String pathName)

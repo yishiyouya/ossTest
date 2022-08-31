@@ -18,6 +18,16 @@ public interface OssDownloadService {
     String downloadFile(String objectName, String pathName) throws Exception;
 
     /**
+     * 限速下载文件
+     *
+     * @param objectName
+     * @param pathName   路径名，下载文件名默认同objectName中的文件名
+     * @return
+     */
+    String limitSpeedDownloadFile(String objectName, String pathName, Integer limitSpeed) throws Exception;
+
+
+    /**
      * 流式下载文件
      *
      * @param objectName

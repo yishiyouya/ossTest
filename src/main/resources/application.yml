@@ -12,8 +12,8 @@ aliyun:
   oss:
     file:
       endpoint: https://oss-cn-hangzhou.aliyuncs.com
-      accessKeyId: LTAI5t5yrEAECKttAs1WyCDt
-      accessKeySecret: QactfiBenzjbVaPXcUa4LkCMo3I0t9
+      accessKeyId: TFRBSTV0NXlyRUFFQ0t0dEFzMVd5Q0R0
+      accessKeySecret: UWFjdGZpQmVuempiVmFQWGNVYTRMa0NNbzNJMHQ5
       bucketName: badfox
       count: 3
       outTime: 1000 #ms
