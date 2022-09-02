@@ -8,8 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
  * OSS不支持单独调整带宽和并发、QPS限制。
  * 同一账号在同一地域内的上传或下载的带宽和请求的QPS缺省阈值为：
  * 带宽：中国内地各地域10 Gbit/s。（上传一般取决于客户端本地网络质量）
- * 其他地域5 Gbit/s。
+ * 其他地域 5 Gbit/s。
  * QPS：10000次/s。
+ *
+ * 限速：[100kb/s, 1000 Mb/s]
  */
 public interface OssUploadService {
 

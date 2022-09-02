@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+
 /**
  * @author 15210
  */
-@RestController
 @Slf4j
+@RestController
 public class OssController {
 
     @Autowired
@@ -123,7 +124,7 @@ public class OssController {
 
     @RequestMapping("/limitSpeedDownloadFile")
     public String rspLimitSpeedDownloadFile(@RequestParam("objectName") String objectName,
-                                  @RequestParam(value = "pathName", required = false) String pathName,
+                                            @RequestParam(value = "pathName", required = false) String pathName,
                                             @RequestParam(value = "limitSpeed", required = false) Integer limitSpeed)
             throws Exception {
 
