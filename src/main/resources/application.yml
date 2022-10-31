@@ -8,6 +8,14 @@ spring:
 #  level:
 #    root: debug
 
+# ali nacos 配置
+nacos:
+  config:
+    server-addr: 127.0.0.1:8848
+  discovery:
+    server-addr: 127.0.0.1:8848
+
+# aliyun OSS 配置
 aliyun:
   oss:
     file:

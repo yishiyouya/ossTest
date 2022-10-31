@@ -9,6 +9,8 @@ import com.aliyun.oss.event.ProgressListener;
 import com.aliyun.oss.model.*;
 import com.badfox.osstest.configs.MyOssConfig;
 import com.badfox.osstest.service.OssDownloadService;
+import com.badfox.osstest.util.MyConstants;
+import com.badfox.osstest.util.MyOSSUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -30,11 +32,16 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
     /**
      * oss 默认路径分割符
      */
-    private final String DEFAULT_OSS_SEP = "/";
+    private static final String DEFAULT_OSS_SEP = "/";
+    private static final String DEFAULT_OSS_DOWNLOAD_FILE = "D:\\Download";
+
+
     @Autowired
     public OSS ossClient;
     @Autowired
     private MyOssConfig myOssConfig;
+    @Autowired
+    private MyOSSUtil myOSSUtil;
     @Autowired
     private WebApplicationContext context;
     /**
@@ -51,7 +58,6 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
     private boolean succeed = false;
     // 进度条下载参数 end
 
-
     @PostConstruct
     public void initParas() {
         endpoint = this.myOssConfig.getALIYUN_OSS_ENDPOINT();
@@ -59,14 +65,13 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
     }
 
     @Override
-    public String downloadFile(String objectName, String pathName) throws Exception {
+    public String downloadFile(String objectName, String pathName) throws Throwable {
         String result = "";
-        //检查文件目录是否存在
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        
+        ossClient = (OSS) context.getBean("ossClient");
 
         pathName = generateDownFileName(objectName, pathName);
-        checkPathExist(pathName);
-        pathName = generateDownFileName(objectName, pathName);
+        
         try {
             // 下载Object到本地文件，并保存到指定的本地路径中。如果指定的本地文件存在会覆盖，不存在则新建。
             // 如果未指定本地路径，则下载后的文件默认保存到示例程序所属项目对应本地路径中。
@@ -88,20 +93,59 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
                     + "such as not being able to access the network.");
             log.error("Error Message:" + ce.getMessage());
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
         return result;
     }
 
     @Override
-    public void bufferDownloadFile(String objectName, String pathName) throws Exception {
-        //检查文件目录是否存在
-        OSS ossClient = (OSS) context.getBean("ossClient");
+    public String limitSpeedDownloadFile(String objectName, String pathName, Integer limitSpeed) throws Throwable {
+        String result = "";
+
+        ossClient = (OSS) context.getBean("ossClient");
 
         pathName = generateDownFileName(objectName, pathName);
-        checkPathExist(pathName);
+
+        limitSpeed = myOssConfig.getLimitSpeed(limitSpeed);
+
+        try {
+            // 下载Object到本地文件，并保存到指定的本地路径中。如果指定的本地文件存在会覆盖，不存在则新建。
+            // 如果未指定本地路径，则下载后的文件默认保存到示例程序所属项目对应本地路径中。
+            GetObjectRequest getObjectRequest = new GetObjectRequest(bucketName, objectName);
+            getObjectRequest.setTrafficLimit(limitSpeed * 1024 * 8);
+            log.info("limitSpeedDownloadFile {} kb/s.", limitSpeed);
+
+            ObjectMetadata objectMetadata = ossClient.getObject(getObjectRequest,
+                    new File(pathName));
+            result = objectMetadata.getETag();
+            log.info(result);
+        } catch (OSSException oe) {
+            log.error("Caught an OSSException, which means your request made it to OSS, "
+                    + "but was rejected with an error response for some reason.");
+            log.error("Error Message:" + oe.getErrorMessage());
+            log.error("Error Code:" + oe.getErrorCode());
+            log.error("Request ID:" + oe.getRequestId());
+            log.error("Host ID:" + oe.getHostId());
+        } catch (ClientException ce) {
+            log.error("Caught an ClientException, which means the client encountered "
+                    + "a serious internal problem while trying to communicate with OSS, "
+                    + "such as not being able to access the network.");
+            log.error("Error Message:" + ce.getMessage());
+        } finally {
+            ossClient.shutdown();
+        }
+        return result;
+    }
+
+
+
+    @Override
+    public void bufferDownloadFile(String objectName, String pathName) throws Throwable {
+        
+        ossClient = (OSS) context.getBean("ossClient");
+
+        pathName = generateDownFileName(objectName, pathName);
+        
 
         OSSObject ossObject = null;
         BufferedReader reader = null;
@@ -157,12 +201,12 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
     }
 
     @Override
-    public void rangeDownloadFile(String objectName, String pathName) throws Exception {
-        //检查文件目录是否存在
-        OSS ossClient = (OSS) context.getBean("ossClient");
+    public void rangeDownloadFile(String objectName, String pathName) throws Throwable {
+        
+        ossClient = (OSS) context.getBean("ossClient");
 
         pathName = generateDownFileName(objectName, pathName);
-        checkPathExist(pathName);
+        
 
         InputStream in = null;
         OutputStream out = null;
@@ -177,7 +221,6 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
             OSSObject ossObject = ossClient.getObject(getObjectRequest);
 
             // 读取数据。
-            byte[] buf = new byte[1024];
             in = ossObject.getObjectContent();
 
             // 写入本地文件
@@ -221,13 +264,13 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
     }
 
     @Override
-    public String breakPointDownloadFile(String objectName, String pathName) throws Exception {
+    public String breakPointDownloadFile(String objectName, String pathName) throws Throwable {
         String result = "";
-        //检查文件目录是否存在
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        
+        ossClient = (OSS) context.getBean("ossClient");
 
         pathName = generateDownFileName(objectName, pathName);
-        checkPathExist(pathName);
+        
 
         ObjectMetadata objectMetadata = null;
 
@@ -237,7 +280,7 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
             // 指定Object下载到本地文件的完整路径，例如D:\\localpath\\examplefile.txt。
             downloadFileRequest.setDownloadFile(pathName);
             // 设置分片大小，单位为字节，取值范围为100 KB~5 GB。默认值为100 KB。
-            downloadFileRequest.setPartSize(1024 * 1024);
+            downloadFileRequest.setPartSize(MyConstants.SPLIT_SIZE);
             // 设置分片下载的并发数，默认值为1。
             downloadFileRequest.setTaskNum(10);
             // 开启断点续传下载，默认关闭。
@@ -267,21 +310,19 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
                     + "such as not being able to access the network.");
             log.error("Error Message:" + ce.getMessage());
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
         return result;
     }
 
     @Override
-    public String conditionDownloadFile(String objectName, String pathName) throws Exception {
+    public String conditionDownloadFile(String objectName, String pathName) throws Throwable {
         String result = "";
-        //检查文件目录是否存在
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        
+        ossClient = (OSS) context.getBean("ossClient");
 
         pathName = generateDownFileName(objectName, pathName);
-        checkPathExist(pathName);
+        
 
         ObjectMetadata objectMetadata = null;
         try {
@@ -307,21 +348,19 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
                     + "such as not being able to access the network.");
             log.error("Error Message:" + ce.getMessage());
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
         return result;
     }
 
     @Override
-    public String processDwnloadFile(String objectName, String pathName) throws Exception {
+    public String processDwnloadFile(String objectName, String pathName) throws Throwable {
         String result = "";
-        //检查文件目录是否存在
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        
+        ossClient = (OSS) context.getBean("ossClient");
 
         pathName = generateDownFileName(objectName, pathName);
-        checkPathExist(pathName);
+        
 
         ObjectMetadata objectMetadata = null;
 
@@ -345,9 +384,7 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
                     + "such as not being able to access the network.");
             log.error("Error Message:" + ce.getMessage());
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
 
         return result;
@@ -388,10 +425,6 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
         }
     }
 
-    private boolean isSucceed() {
-        return succeed;
-    }
-
 
     /**
      * 检查下载文件路径是否存在
@@ -420,7 +453,7 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
      */
     private String getDefaultPath(String pathName) {
         if (!StringUtils.hasText(pathName)) {
-            pathName = "D:\\Download";
+            pathName = DEFAULT_OSS_DOWNLOAD_FILE;
         }
         return pathName;
     }
@@ -437,7 +470,7 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
      * @param pathName
      * @return
      */
-    private String generateDownFileName(String objectName, String pathName) throws Exception {
+    private String generateDownFileName(String objectName, String pathName) throws Throwable {
 
         pathName = getDefaultPath(pathName);
 
@@ -454,6 +487,11 @@ public class OssDownloadServiceImpl implements OssDownloadService, ProgressListe
             pathName = pathName.concat(File.separator).concat(tmpObjectName);
         }
         fileName = pathName.concat(File.separator).concat(fileName);
+
+        /**
+         * 确保下载文件路径存在
+         */
+        checkPathExist(pathName);
         return fileName;
     }
 

@@ -10,11 +10,12 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+
 /**
  * @author 15210
  */
-@RestController
 @Slf4j
+@RestController
 public class OssController {
 
     @Autowired
@@ -35,7 +36,7 @@ public class OssController {
     }
 
     @RequestMapping("/upload")
-    public String upload() throws Exception {
+    public String upload() throws Throwable {
         // 填写Object完整路径，完整路径中不能包含Bucket名称，例如 badfox/testOSS.txt。
         String objectName = "badfox/testOSS.txt";
         // 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
@@ -46,7 +47,7 @@ public class OssController {
     }
 
     @RequestMapping("/appendUpload")
-    public String rspAppendUpload() throws Exception {
+    public String rspAppendUpload() throws Throwable {
         // 填写Object完整路径，完整路径中不能包含Bucket名称。
         String objectName = "appendupload/1.txt";
         // 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
@@ -56,7 +57,7 @@ public class OssController {
     }
 
     @RequestMapping("/processUpload")
-    public String rspProcessUpload() throws Exception {
+    public String rspProcessUpload() throws Throwable {
         // 填写Object完整路径，完整路径中不能包含Bucket名称，例如 badfox/testOSS.txt。
         String objectName = "processUpload/1.txt";
         // 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
@@ -66,7 +67,7 @@ public class OssController {
     }
 
     @RequestMapping("/breakpointUpload")
-    public String rspBreakpointUpload() throws Exception {
+    public String rspBreakpointUpload() throws Throwable {
         // 填写Object完整路径，完整路径中不能包含Bucket名称，例如 badfox/testOSS.txt。
         String objectName = "breakpoint/1.txt";
         // 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
@@ -77,7 +78,7 @@ public class OssController {
     }
 
     @RequestMapping("/multiPartUpload")
-    public String rspMultiPartUpload() throws Exception {
+    public String rspMultiPartUpload() throws Throwable {
         // 填写Object完整路径，完整路径中不能包含Bucket名称，例如 badfox/testOSS.txt。
         String objectName = "multiPartUpload/1.txt";
         // 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
@@ -91,7 +92,7 @@ public class OssController {
      * 上传头像，返回图片的url
      */
     @PostMapping("/uploadFileAvatar")
-    public String uploadOssFile(MultipartFile file) throws Exception {
+    public String uploadOssFile(MultipartFile file) throws Throwable {
         //获取上传文件 MultipartFile
         //返回图片在oss上的路径
         String url = ossUploadService.uploadFileAvatar(file);
@@ -99,7 +100,7 @@ public class OssController {
     }
 
     @RequestMapping("/uploadCallBack")
-    public String rspUploadCallBack() throws Exception {
+    public String rspUploadCallBack() throws Throwable {
         // 填写Object完整路径，完整路径中不能包含Bucket名称，例如 badfox/testOSS.txt。
         String objectName = "badfox/testOSSBig.txt";
         // 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
@@ -113,7 +114,7 @@ public class OssController {
     @RequestMapping("/downloadFile")
     public String rspDownloadFile(@RequestParam("objectName") String objectName,
                                   @RequestParam(value = "pathName", required = false) String pathName)
-            throws Exception {
+            throws Throwable {
 
         //// 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
         //// 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
@@ -121,10 +122,22 @@ public class OssController {
         return result;
     }
 
+    @RequestMapping("/limitSpeedDownloadFile")
+    public String rspLimitSpeedDownloadFile(@RequestParam("objectName") String objectName,
+                                            @RequestParam(value = "pathName", required = false) String pathName,
+                                            @RequestParam(value = "limitSpeed", required = false) Integer limitSpeed)
+            throws Throwable {
+
+        //// 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
+        //// 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
+        String result = ossDownloadService.limitSpeedDownloadFile(objectName, pathName, limitSpeed);
+        return result;
+    }
+
     @RequestMapping("/bufferDownloadFile")
     public String rspBufferDownloadFile(@RequestParam("objectName") String objectName,
                                         @RequestParam(value = "pathName", required = false) String pathName)
-            throws Exception {
+            throws Throwable {
 
         //// 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
         //// 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
@@ -135,7 +148,7 @@ public class OssController {
     @RequestMapping("/rangeDownloadFile")
     public String rspRangeDownloadFile(@RequestParam("objectName") String objectName,
                                        @RequestParam(value = "pathName", required = false) String pathName)
-            throws Exception {
+            throws Throwable {
 
         //// 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
         //// 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
@@ -147,7 +160,7 @@ public class OssController {
     @RequestMapping("/breakPointDownloadFile")
     public String rspBreakPointDownloadFile(@RequestParam("objectName") String objectName,
                                             @RequestParam(value = "pathName", required = false) String pathName)
-            throws Exception {
+            throws Throwable {
 
         //// 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
         //// 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
@@ -158,7 +171,7 @@ public class OssController {
     @RequestMapping("/conditionDownloadFile")
     public String rspConditionDownloadFile(@RequestParam("objectName") String objectName,
                                            @RequestParam(value = "pathName", required = false) String pathName)
-            throws Exception {
+            throws Throwable {
 
         //// 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
         //// 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
@@ -170,7 +183,7 @@ public class OssController {
     @RequestMapping("/processDwnloadFile")
     public String rspProcessDwnloadFile(@RequestParam("objectName") String objectName,
                                         @RequestParam(value = "pathName", required = false) String pathName)
-            throws Exception {
+            throws Throwable {
 
         //// 填写本地文件的完整路径，例如D://Download//bonc//testOSS.txt
         //// 如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
@@ -184,7 +197,7 @@ public class OssController {
         String result = "success";
         try {
             ossUploadService.setBucketAcl(bucketName, Access);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             result = "fail";
             throw new RuntimeException(e);
         }
@@ -196,7 +209,7 @@ public class OssController {
         String bucketAcl = "";
         try {
             bucketAcl = ossUploadService.getBucketAcl(bucketName);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
         return bucketAcl;
@@ -218,7 +231,7 @@ public class OssController {
         String result = "success";
         try {
             ossUploadService.setObjectAcl(bucketName, objectName, Access);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             result = "fail";
             throw new RuntimeException(e);
         }
@@ -231,7 +244,7 @@ public class OssController {
         String objectAcl = "";
         try {
             objectAcl = ossUploadService.getObjectAcl(bucketName, objectName);
-        } catch (Exception e) {
+        } catch (Throwable e) {
             throw new RuntimeException(e);
         }
         return objectAcl;

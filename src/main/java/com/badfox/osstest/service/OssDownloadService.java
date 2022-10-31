@@ -15,7 +15,17 @@ public interface OssDownloadService {
      * @param pathName   路径名，下载文件名默认同objectName中的文件名
      * @return
      */
-    String downloadFile(String objectName, String pathName) throws Exception;
+    String downloadFile(String objectName, String pathName) throws Throwable;
+
+    /**
+     * 限速下载文件
+     *
+     * @param objectName
+     * @param pathName   路径名，下载文件名默认同objectName中的文件名
+     * @return
+     */
+    String limitSpeedDownloadFile(String objectName, String pathName, Integer limitSpeed) throws Throwable;
+
 
     /**
      * 流式下载文件
@@ -23,16 +33,16 @@ public interface OssDownloadService {
      * @param objectName
      * @param pathName
      */
-    void bufferDownloadFile(String objectName, String pathName) throws Exception;
+    void bufferDownloadFile(String objectName, String pathName) throws Throwable;
 
     /**
      * 范围下载
      *
      * @param objectName
      * @param pathName
-     * @throws Exception
+     * @throws Throwable
      */
-    void rangeDownloadFile(String objectName, String pathName) throws Exception;
+    void rangeDownloadFile(String objectName, String pathName) throws Throwable;
 
     /**
      * 断点续传下载
@@ -42,7 +52,7 @@ public interface OssDownloadService {
      * @param pathName
      * @return
      */
-    String breakPointDownloadFile(String objectName, String pathName) throws Exception;
+    String breakPointDownloadFile(String objectName, String pathName) throws Throwable;
 
     /**
      * 条件下载
@@ -51,7 +61,7 @@ public interface OssDownloadService {
      * @param pathName
      * @return
      */
-    String conditionDownloadFile(String objectName, String pathName) throws Exception;
+    String conditionDownloadFile(String objectName, String pathName) throws Throwable;
 
     /**
      * 进度条下载
@@ -59,8 +69,8 @@ public interface OssDownloadService {
      * @param objectName
      * @param pathName
      * @return
-     * @throws Exception
+     * @throws Throwable
      */
-    String processDwnloadFile(String objectName, String pathName) throws Exception;
+    String processDwnloadFile(String objectName, String pathName) throws Throwable;
 
 }

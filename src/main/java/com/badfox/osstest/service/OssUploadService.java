@@ -8,8 +8,10 @@ import org.springframework.web.multipart.MultipartFile;
  * OSS不支持单独调整带宽和并发、QPS限制。
  * 同一账号在同一地域内的上传或下载的带宽和请求的QPS缺省阈值为：
  * 带宽：中国内地各地域10 Gbit/s。（上传一般取决于客户端本地网络质量）
- * 其他地域5 Gbit/s。
+ * 其他地域 5 Gbit/s。
  * QPS：10000次/s。
+ *
+ * 限速：[100kb/s, 1000 Mb/s]
  */
 public interface OssUploadService {
 
@@ -49,9 +51,9 @@ public interface OssUploadService {
      *
      * @param file
      * @return
-     * @throws Exception
+     * @throws Throwable
      */
-    String uploadFileAvatar(MultipartFile file) throws Exception;
+    String uploadFileAvatar(MultipartFile file) throws Throwable;
 
     /**
      * 上传成功后回调
@@ -59,9 +61,9 @@ public interface OssUploadService {
      * @param objectName
      * @param filePath
      * @return
-     * @throws Exception
+     * @throws Throwable
      */
-    String uploadCallBack(String objectName, String filePath) throws Exception;
+    String uploadCallBack(String objectName, String filePath) throws Throwable;
 
     /**
      * 删除文件
@@ -69,18 +71,18 @@ public interface OssUploadService {
      * @param relativePath
      * @return
      */
-    boolean delete(String relativePath) throws Exception;
+    boolean delete(String relativePath) throws Throwable;
 
     /**
      * bucket 权限管理 start
      *
      * @param bucketName
      * @param Access
-     * @throws Exception
+     * @throws Throwable
      */
-    void setBucketAcl(String bucketName, String Access) throws Exception;
+    void setBucketAcl(String bucketName, String Access) throws Throwable;
 
-    String getBucketAcl(String bucketName) throws Exception;
+    String getBucketAcl(String bucketName) throws Throwable;
     //bucket 权限管理 end
 
     /**
@@ -89,11 +91,11 @@ public interface OssUploadService {
      * @param bucketName
      * @param objectName
      * @param Access
-     * @throws Exception
+     * @throws Throwable
      */
-    void setObjectAcl(String bucketName, String objectName, String Access) throws Exception;
+    void setObjectAcl(String bucketName, String objectName, String Access) throws Throwable;
 
-    String getObjectAcl(String bucketName, String objectName) throws Exception;
+    String getObjectAcl(String bucketName, String objectName) throws Throwable;
     // object 权限管理 end
 
 }

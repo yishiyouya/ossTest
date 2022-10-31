@@ -2,6 +2,7 @@ package com.badfox.osstest.service.impl;
 
 import com.aliyun.oss.ClientException;
 import com.aliyun.oss.OSS;
+import com.aliyun.oss.OSSClientBuilder;
 import com.aliyun.oss.OSSException;
 import com.aliyun.oss.event.ProgressEvent;
 import com.aliyun.oss.event.ProgressEventType;
@@ -9,6 +10,7 @@ import com.aliyun.oss.event.ProgressListener;
 import com.aliyun.oss.model.*;
 import com.badfox.osstest.configs.MyOssConfig;
 import com.badfox.osstest.service.OssUploadService;
+import com.badfox.osstest.util.MyConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,6 @@ import java.util.List;
 @Slf4j
 public class OssUploadServiceImpl implements OssUploadService, ProgressListener {
 
-    @Autowired
     public OSS ossClient;
     @Autowired
     private MyOssConfig myOssConfig;
@@ -59,7 +60,7 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
     @Override
     public String upload(String objectName, String filePath) {
         // 创建OSSClient实例。
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        ossClient = (OSS) context.getBean("ossClient");
         try {
             // 创建PutObjectRequest对象。
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName,
@@ -76,21 +77,19 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
             ossClient.shutdown();
 
         } catch (OSSException oe) {
-            System.out.println("Caught an OSSException, which means your request made it to OSS, "
+            log.error("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");
-            System.out.println("Error Message:" + oe.getErrorMessage());
-            System.out.println("Error Code:" + oe.getErrorCode());
-            System.out.println("Request ID:" + oe.getRequestId());
-            System.out.println("Host ID:" + oe.getHostId());
+            log.error("Error Message:" + oe.getErrorMessage());
+            log.error("Error Code:" + oe.getErrorCode());
+            log.error("Request ID:" + oe.getRequestId());
+            log.error("Host ID:" + oe.getHostId());
         } catch (ClientException ce) {
-            System.out.println("Caught an ClientException, which means the client encountered "
+            log.error("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network.");
-            System.out.println("Error Message:" + ce.getMessage());
+            log.error("Error Message:" + ce.getMessage());
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
         return "your link";
     }
@@ -100,13 +99,11 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
      *
      * @param filePath
      * @return
-     * @throws Exception
+     * @throws Throwable
      */
-    public List<File> getAllFileByPath(String filePath) throws Exception {
+    public List<File> getAllFileByPath(String filePath) throws Throwable {
         File pathFile = new File(filePath);
-        List<File> files = new ArrayList<>();
-        files = Arrays.asList(pathFile.listFiles());
-        return files;
+        return Arrays.asList(pathFile.listFiles());
     }
 
     @Override
@@ -114,11 +111,11 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
         String result = "";
 
         // 创建OSSClient实例。
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        ossClient = (OSS) context.getBean("ossClient");
         try {
             //filePath 文件夹下所有文件
             List<File> files = getAllFileByPath(filePath);
-            if (null == files || files.size() < 1) {
+            if (null == files || files.isEmpty()) {
                 throw new Exception("无文件");
             }
 
@@ -127,7 +124,7 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
             // 指定上传的内容类型。
             meta.setContentType("text/plain");
             // 指定该Object的网页缓存行为。
-            //meta.setCacheControl("no-cache");
+            // meta.setCacheControl("no-cache");
             // 指定该Object被下载时的名称。
             //meta.setContentDisposition("attachment;filename=oss_download.txt");
             // 指定该Object的内容编码格式。
@@ -157,7 +154,7 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
 
             // 通过AppendObjectRequest设置单个参数。
             // 设置Bucket名称。
-            //appendObjectRequest.setBucketName(bucketName);
+            // appendObjectRequest.setBucketName(bucketName);
             // 设置Object名称。
             //appendObjectRequest.setKey(objectName);
             // 设置待追加的内容。可选类型包括InputStream类型和File类型。此处为InputStream类型。
@@ -172,11 +169,11 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
             appendObjectRequest.setPosition(0L);
             AppendObjectResult appendObjectResult = ossClient.appendObject(appendObjectRequest);
             // 文件的64位CRC值。此值根据ECMA-182标准计算得出。
-            System.out.println(appendObjectResult.getObjectCRC());
+            log.info(appendObjectResult.getObjectCRC());
 
-            //// 第二次追加。
-            //// nextPosition表示下一次请求中应当提供的Position，即文件当前的长度。
-            //appendObjectRequest.setPosition(appendObjectResult.getNextPosition());
+            // 第二次追加。
+            // nextPosition表示下一次请求中应当提供的Position，即文件当前的长度。
+            // appendObjectRequest.setPosition(appendObjectResult.getNextPosition());
             //appendObjectRequest.setInputStream(new FileInputStream(new File(files.get(1))));
             //appendObjectResult = ossClient.appendObject(appendObjectRequest);
             //
@@ -193,23 +190,23 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
 
             result = appendObjectResult.toString();
         } catch (OSSException oe) {
-            System.out.println("Caught an OSSException, which means your request made it to OSS, "
+            log.error("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");
-            System.out.println("Error Message:" + oe.getErrorMessage());
-            System.out.println("Error Code:" + oe.getErrorCode());
-            System.out.println("Request ID:" + oe.getRequestId());
-            System.out.println("Host ID:" + oe.getHostId());
+            log.error("Error Message:" + oe.getErrorMessage());
+            log.error("Error Code:" + oe.getErrorCode());
+            log.error("Request ID:" + oe.getRequestId());
+            log.error("Host ID:" + oe.getHostId());
         } catch (ClientException ce) {
-            System.out.println("Caught an ClientException, which means the client encountered "
+            log.error("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network.");
-            System.out.println("Error Message:" + ce.getMessage());
+            log.error("Error Message:" + ce.getMessage());
         } catch (Exception e) {
-            System.out.println("Error Message:" + e.getMessage());
+            log.error("Exception Message:" + e.getMessage());
+        } catch (Throwable e) {
+            log.error("Throwable Message:" + e.getMessage());
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
         return result;
     }
@@ -218,7 +215,7 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
     public String processUpload(String objectName, String filePath) {
         // 创建OSSClient实例。
         String result = "";
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        ossClient = (OSS) context.getBean("ossClient");
         try {
             // 上传文件的同时指定进度条参数。此处PutObjectProgressListenerDemo为调用类的类名，请在实际使用时替换为相应的类名。
             PutObjectResult putObjectResult = ossClient.putObject(
@@ -233,21 +230,19 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
              * <GetObjectRequest>withProgressListener(new GetObjectProgressListenerDemo()));
              */
         } catch (OSSException oe) {
-            System.out.println("Caught an OSSException, which means your request made it to OSS, "
+            log.error("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");
-            System.out.println("Error Message:" + oe.getErrorMessage());
-            System.out.println("Error Code:" + oe.getErrorCode());
-            System.out.println("Request ID:" + oe.getRequestId());
-            System.out.println("Host ID:" + oe.getHostId());
+            log.error("Error Message:" + oe.getErrorMessage());
+            log.error("Error Code:" + oe.getErrorCode());
+            log.error("Request ID:" + oe.getRequestId());
+            log.error("Host ID:" + oe.getHostId());
         } catch (ClientException ce) {
-            System.out.println("Caught an ClientException, which means the client encountered "
+            log.error("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network.");
-            System.out.println("Error Message:" + ce.getMessage());
+            log.error("Error Message:" + ce.getMessage());
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
         return result;
     }
@@ -256,7 +251,7 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
     public String breakpointUpload(String objectName, String filePath) {
         String result = "";
         try {
-            OSS ossClient = (OSS) context.getBean("ossClient");
+            ossClient = (OSS) context.getBean("ossClient");
             ObjectMetadata meta = new ObjectMetadata();
             // 指定上传的内容类型。
             meta.setContentType("text/plain");
@@ -274,7 +269,7 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
             // 指定上传并发线程数，默认值为1。
             uploadFileRequest.setTaskNum(5);
             // 指定上传的分片大小，单位为字节，取值范围为100 KB~5 GB。默认值为100 KB。
-            uploadFileRequest.setPartSize(1024 * 1024);
+            uploadFileRequest.setPartSize(MyConstants.SPLIT_SIZE);
             // 开启断点续传，默认关闭。
             uploadFileRequest.setEnableCheckpoint(true);
             // 记录本地分片上传结果的文件。上传过程中的进度信息会保存在该文件中，如果某一分片上传失败，再次上传时会根据文件中记录的点继续上传。上传完成后，该文件会被删除。
@@ -290,22 +285,20 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
 
             result = uploadFileResult.getMultipartUploadResult().toString();
         } catch (OSSException oe) {
-            System.out.println("Caught an OSSException, which means your request made it to OSS, "
+            log.error("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");
-            System.out.println("Error Message:" + oe.getErrorMessage());
-            System.out.println("Error Code:" + oe.getErrorCode());
-            System.out.println("Request ID:" + oe.getRequestId());
-            System.out.println("Host ID:" + oe.getHostId());
+            log.error("Error Message:" + oe.getErrorMessage());
+            log.error("Error Code:" + oe.getErrorCode());
+            log.error("Request ID:" + oe.getRequestId());
+            log.error("Host ID:" + oe.getHostId());
         } catch (Throwable ce) {
-            System.out.println("Caught an ClientException, which means the client encountered "
+            log.error("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network.");
-            System.out.println("Error Message:" + ce.getMessage());
+            log.error("Error Message:" + ce.getMessage());
         } finally {
             // 关闭OSSClient。
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
         return result;
     }
@@ -317,7 +310,8 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
 
         String result = "";
         // 获取 OSSClient实例。
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        ossClient = (OSS) context.getBean("ossClient");
+        InputStream instream = null;
         try {
             // 创建InitiateMultipartUploadRequest对象。
             InitiateMultipartUploadRequest request = new InitiateMultipartUploadRequest(bucketName, objectName);
@@ -351,22 +345,20 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
             String uploadId = upresult.getUploadId();
 
             // partETags是PartETag的集合。PartETag由分片的ETag和分片号组成。
-            List<PartETag> partETags = new ArrayList<PartETag>();
-            // 每个分片的大小，用于计算文件有多少个分片。单位为字节。
-            final long partSize = 1024 * 1024L;
+            List<PartETag> partETags = new ArrayList<>();
 
             // 填写本地文件的完整路径。如果未指定本地路径，则默认从示例程序所属项目对应本地路径中上传文件。
             final File sampleFile = new File(filePath);
             long fileLength = sampleFile.length();
-            int partCount = (int) (fileLength / partSize);
-            if (fileLength % partSize != 0) {
+            int partCount = (int) (fileLength / MyConstants.SPLIT_SIZE);
+            if (fileLength % MyConstants.SPLIT_SIZE != 0) {
                 partCount++;
             }
             // 遍历分片上传。
             for (int i = 0; i < partCount; i++) {
-                long startPos = i * partSize;
-                long curPartSize = (i + 1 == partCount) ? (fileLength - startPos) : partSize;
-                InputStream instream = new FileInputStream(sampleFile);
+                long startPos = i * MyConstants.SPLIT_SIZE;
+                long curPartSize = (i + 1 == partCount) ? (fileLength - startPos) : MyConstants.SPLIT_SIZE;
+                instream = new FileInputStream(sampleFile);
                 // 跳过已经上传的分片。
                 instream.skip(startPos);
                 UploadPartRequest uploadPartRequest = new UploadPartRequest();
@@ -400,24 +392,24 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
             // 完成分片上传。
             CompleteMultipartUploadResult completeMultipartUploadResult =
                     ossClient.completeMultipartUpload(completeMultipartUploadRequest);
-            System.out.println(completeMultipartUploadResult.getETag());
+            log.info(completeMultipartUploadResult.getETag());
 
             stopWatch.stop();
 
             result = completeMultipartUploadResult.getETag() + stopWatch.getLastTaskTimeMillis();
         } catch (OSSException oe) {
-            System.out.println("Caught an OSSException, which means your request made it to OSS, "
+            log.error("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");
-            System.out.println("Error Message:" + oe.getErrorMessage());
-            System.out.println("Error Code:" + oe.getErrorCode());
-            System.out.println("Request ID:" + oe.getRequestId());
-            System.out.println("Host ID:" + oe.getHostId());
+            log.error("Error Message:" + oe.getErrorMessage());
+            log.error("Error Code:" + oe.getErrorCode());
+            log.error("Request ID:" + oe.getRequestId());
+            log.error("Host ID:" + oe.getHostId());
             result = "OSSException multiPartUpload failed";
         } catch (ClientException ce) {
-            System.out.println("Caught an ClientException, which means the client encountered "
+            log.error("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network.");
-            System.out.println("Error Message:" + ce.getMessage());
+            log.error("Error Message:" + ce.getMessage());
             result = "ClientException multiPartUpload failed";
         } catch (FileNotFoundException e) {
             result = "FileNotFoundException multiPartUpload failed";
@@ -426,18 +418,24 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
             result = "IOException multiPartUpload failed";
             throw new RuntimeException(e);
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
+            if (null != instream) {
+                try {
+                    instream.close();
+                } catch (IOException e) {
+                    log.error("Error Message:" + e.getMessage());
+                    throw new RuntimeException(e);
+                }
             }
+            ossClient.shutdown();
         }
         return result;
     }
 
     @Override
-    public String uploadFileAvatar(MultipartFile file) throws Exception {
+    public String uploadFileAvatar(MultipartFile file) throws Throwable {
         String url = null;
 
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        ossClient = (OSS) context.getBean("ossClient");
         //获取上传文件输入流
         InputStream inputStream = file.getInputStream();
         //获取文件名称
@@ -469,7 +467,7 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
     }
 
     @Override
-    public String uploadCallBack(String objectName, String filePath) throws Exception {
+    public String uploadCallBack(String objectName, String filePath) throws Throwable {
         String result = "";
 
         /**
@@ -480,7 +478,7 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
         String callbackUrl = "http://192.168.1.149:9000/";
 
         // 创建OSSClient实例
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        ossClient = (OSS) context.getBean("ossClient");
         try {
             PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName,
                     objectName,
@@ -508,28 +506,26 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
 
             result = putObjectResult.toString();
         } catch (OSSException oe) {
-            System.out.println("Caught an OSSException, which means your request made it to OSS, "
+            log.error("Caught an OSSException, which means your request made it to OSS, "
                     + "but was rejected with an error response for some reason.");
-            System.out.println("Error Message:" + oe.getErrorMessage());
-            System.out.println("Error Code:" + oe.getErrorCode());
-            System.out.println("Request ID:" + oe.getRequestId());
-            System.out.println("Host ID:" + oe.getHostId());
+            log.error("Error Message:" + oe.getErrorMessage());
+            log.error("Error Code:" + oe.getErrorCode());
+            log.error("Request ID:" + oe.getRequestId());
+            log.error("Host ID:" + oe.getHostId());
         } catch (Throwable ce) {
-            System.out.println("Caught an ClientException, which means the client encountered "
+            log.error("Caught an ClientException, which means the client encountered "
                     + "a serious internal problem while trying to communicate with OSS, "
                     + "such as not being able to access the network.");
-            System.out.println("Error Message:" + ce.getMessage());
+            log.error("Error Message:" + ce.getMessage());
         } finally {
-            if (ossClient != null) {
-                ossClient.shutdown();
-            }
+            ossClient.shutdown();
         }
         return result;
     }
 
     @Override
-    public boolean delete(String relativePath) throws Exception {
-        OSS ossClient = (OSS) context.getBean("ossClient");
+    public boolean delete(String relativePath) throws Throwable {
+        ossClient = (OSS) context.getBean("ossClient");
         try {
             ossClient.deleteObject(bucketName, relativePath);
         } catch (Exception e) {
@@ -542,44 +538,38 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
     }
 
     @Override
-    public String getBucketAcl(String bucketName) throws Exception {
-        // OSS ossClient = new OSSClientBuilder().build(
-        //        myOssConfig.getALIYUN_OSS_ENDPOINT(),
-        //        myOssConfig.getALIYUN_OSS_ACCESSKEYID(),
-        //        myOssConfig.getALIYUN_OSS_ACCESSKEYSECRET());
-
-        System.out.println(ossClient.getConnectionPoolStats() + "==========start");
-        OSS ossClient = (OSS) context.getBean("ossClient");
-        System.out.println(ossClient.hashCode());
+    public String getBucketAcl(String bucketName) throws Throwable {
+        log.info(ossClient.getConnectionPoolStats() + "==========start");
+        ossClient = (OSS) context.getBean("ossClient");
+        log.info("client hashCode:" + ossClient.hashCode());
         AccessControlList bucketAcl = ossClient.getBucketAcl(bucketName);
 
         ossClient.shutdown();
-        System.out.println(ossClient.getConnectionPoolStats() + "==========end");
+        log.info(ossClient.getConnectionPoolStats() + "==========end");
         return bucketAcl.toString();
     }
 
     @Override
-    public void setBucketAcl(String bucketName, String Access) throws Exception {
+    public void setBucketAcl(String bucketName, String access) throws Throwable {
         //创建OSSClient实例。
-        OSS ossClient = (OSS) context.getBean("ossClient");
-        ossClient.setBucketAcl(bucketName, canAccessListByAccess(Access));
+        ossClient = (OSS) context.getBean("ossClient");
+        ossClient.setBucketAcl(bucketName, canAccessListByAccess(access));
 
         ossClient.shutdown();
     }
 
     @Override
-    public void setObjectAcl(String bucketName, String objectName, String Access) throws Exception {
+    public void setObjectAcl(String bucketName, String objectName, String access) throws Throwable {
         //创建OSSClient实例。
-        OSS ossClient = (OSS) context.getBean("ossClient");
-        ossClient.setObjectAcl(bucketName, objectName, canAccessListByAccess(Access));
+        ossClient = (OSS) context.getBean("ossClient");
+        ossClient.setObjectAcl(bucketName, objectName, canAccessListByAccess(access));
         ossClient.shutdown();
-
     }
 
     @Override
-    public String getObjectAcl(String bucketName, String objectName) throws Exception {
+    public String getObjectAcl(String bucketName, String objectName) throws Throwable {
         //创建OSSClient实例。
-        OSS ossClient = (OSS) context.getBean("ossClient");
+        ossClient = (OSS) context.getBean("ossClient");
         ObjectAcl objectAcl = ossClient.getObjectAcl(bucketName, objectName);
 
         ossClient.shutdown();
@@ -600,27 +590,27 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
         ProgressEventType eventType = progressEvent.getEventType();
         switch (eventType) {
             case TRANSFER_STARTED_EVENT:
-                System.out.println("Start to upload......");
+                log.info("Start to upload......");
                 break;
             case REQUEST_CONTENT_LENGTH_EVENT:
                 this.totalBytes = bytes;
-                System.out.println(this.totalBytes + " bytes in total will be uploaded to OSS");
+                log.info(this.totalBytes + " bytes in total will be uploaded to OSS");
                 break;
             case REQUEST_BYTE_TRANSFER_EVENT:
                 this.bytesWritten += bytes;
                 if (this.totalBytes != -1) {
                     int percent = (int) (this.bytesWritten * 100.0 / this.totalBytes);
-                    System.out.println(bytes + " bytes have been written at this time, upload progress: " + percent + "%(" + this.bytesWritten + "/" + this.totalBytes + ")");
+                    log.info(bytes + " bytes have been written at this time, upload progress: " + percent + "%(" + this.bytesWritten + "/" + this.totalBytes + ")");
                 } else {
-                    System.out.println(bytes + " bytes have been written at this time, upload ratio: unknown" + "(" + this.bytesWritten + "/...)");
+                    log.info(bytes + " bytes have been written at this time, upload ratio: unknown" + "(" + this.bytesWritten + "/...)");
                 }
                 break;
             case TRANSFER_COMPLETED_EVENT:
                 this.succeed = true;
-                System.out.println("Succeed to upload, " + this.bytesWritten + " bytes have been transferred in total");
+                log.info("Succeed to upload, " + this.bytesWritten + " bytes have been transferred in total");
                 break;
             case TRANSFER_FAILED_EVENT:
-                System.out.println("Failed to upload, " + this.bytesWritten + " bytes have been transferred");
+                log.info("Failed to upload, " + this.bytesWritten + " bytes have been transferred");
                 break;
             default:
                 break;
@@ -632,17 +622,17 @@ public class OssUploadServiceImpl implements OssUploadService, ProgressListener 
      *
      * @param Access
      * @return
-     * @throws Exception
+     * @throws Throwable
      */
-    private CannedAccessControlList canAccessListByAccess(String Access) throws Exception {
+    private CannedAccessControlList canAccessListByAccess(String access) throws Throwable {
         CannedAccessControlList result = null;
-        if (CannedAccessControlList.PublicRead.toString().equals(Access)) {
+        if (CannedAccessControlList.PublicRead.toString().equals(access)) {
             result = CannedAccessControlList.PublicRead;
-        } else if (CannedAccessControlList.PublicReadWrite.toString().equals(Access)) {
+        } else if (CannedAccessControlList.PublicReadWrite.toString().equals(access)) {
             result = CannedAccessControlList.PublicReadWrite;
-        } else if (CannedAccessControlList.Private.toString().equals(Access)) {
+        } else if (CannedAccessControlList.Private.toString().equals(access)) {
             result = CannedAccessControlList.Private;
-        } else if (CannedAccessControlList.Default.toString().equals(Access)) {
+        } else if (CannedAccessControlList.Default.toString().equals(access)) {
             result = CannedAccessControlList.Default;
         } else {
             throw new Exception("no this Access!");
