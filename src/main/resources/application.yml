@@ -4,9 +4,31 @@ spring:
   application:
     name: service-oss
 
+  # 本地 mysql
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.zaxxer.hikari.HikariDataSource
+    url: jdbc:mysql://localhost:3306/mall?useUnicode=true&characterEncoding=utf-8&useSSL=true
+    username: root
+    password: root123@W
+
+#    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+#    url: jdbc:p6spy:mysql://localhost:3306/mall?useUnicode=true&characterEncoding=utf-8&useSSL=true
+#    username: root
+#    password: root123@W
+
+# mybatis-plus配置mapper位置，全局主键策略
+mybatis-plus:
+  global-config:
+    db-config:
+      id-type: ASSIGN_ID
+      logic-not-delete-value: 0
+      logic-delete-value: 1
+
 #logging:
 #  level:
 #    root: debug
+
 
 # ali nacos 配置
 nacos:
