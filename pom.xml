@@ -189,6 +189,12 @@
             <artifactId>classmate</artifactId>
             <version>1.5.1</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/com.github.a982338665/lf-open-java-swagger2word -->
+        <dependency>
+            <groupId>com.github.a982338665</groupId>
+            <artifactId>lf-open-java-swagger2word</artifactId>
+            <version>1.0.2-RELEASE</version>
+        </dependency>
 
         <!-- https://mvnrepository.com/artifact/com.aliyun.oss/aliyun-sdk-oss -->
         <dependency>
@@ -230,7 +236,7 @@
                     <!-- api-docs访问url -->
                     <swaggerInput>http://localhost:8082/v2/api-docs</swaggerInput>
                     <!-- 生成为单个文档，输出路径 -->
-                    <outputDir>src/docs/asciidoc/generated</outputDir>
+                    <outputDir>docs/asciidoc/generated</outputDir>
                     <config>
                         <!-- ascii格式文档 -->
                         <!--<swagger2markup.markupLanguage>MARKDOWN</swagger2markup.markupLanguage>-->
@@ -258,7 +264,7 @@
                 </dependencies>
                 <!-- Configure generic document generation settings -->
                 <configuration>
-                    <sourceDirectory>src/docs/asciidoc/generated</sourceDirectory>
+                    <sourceDirectory>docs/asciidoc/generated</sourceDirectory>
                     <sourceHighlighter>coderay</sourceHighlighter>
                     <attributes>
                         <toc>left</toc>
@@ -275,7 +281,7 @@
                         </goals>
                         <configuration>
                             <backend>html5</backend>
-                            <outputDirectory>src/docs/asciidoc/html</outputDirectory>
+                            <outputDirectory>docs/asciidoc/html</outputDirectory>
                         </configuration>
                     </execution>
 
