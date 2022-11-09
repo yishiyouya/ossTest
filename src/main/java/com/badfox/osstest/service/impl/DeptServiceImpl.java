@@ -22,6 +22,13 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, DeptPO> implements 
     private DeptMapper deptMapper;
 
     @Override
+    public DeptPO selectOne(String id) {
+        LambdaQueryWrapper<DeptPO> deptPOLambdaQueryWrapper = Wrappers.<DeptPO>lambdaQuery();
+        deptPOLambdaQueryWrapper.eq(DeptPO::getId, id);
+        return  this.getOne(deptPOLambdaQueryWrapper);
+    }
+
+    @Override
     public List<DeptPO> selectList() {
         QueryWrapper<DeptPO> queryWapper = new QueryWrapper<>();
         List<DeptPO> list = deptMapper.selectList(queryWapper);
@@ -33,6 +40,17 @@ public class DeptServiceImpl extends ServiceImpl<DeptMapper, DeptPO> implements 
         Page<DeptPO> pageReq = new Page<>(curr, size);
         Page<DeptPO> page =
                 new LambdaQueryChainWrapper<>(deptMapper).page(pageReq);
+        List<DeptPO> list = page.getRecords();
+        return list;
+    }
+
+    @Override
+    public List<DeptPO> selectPageList(int curr, int size, String code) {
+        Page<DeptPO> pageReq = new Page<>(curr, size);
+        LambdaQueryWrapper<DeptPO> deptPOLambdaQueryWrapper = Wrappers.<DeptPO>lambdaQuery();
+        deptPOLambdaQueryWrapper.like(DeptPO::getCode, code);
+
+        Page<DeptPO> page = deptMapper.selectPage(pageReq, deptPOLambdaQueryWrapper);
         List<DeptPO> list = page.getRecords();
         return list;
     }

@@ -10,23 +10,24 @@ import com.mysql.cj.jdbc.MysqlDataSource;
 
 import javax.sql.DataSource;
 import java.io.File;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
 public class GenerateMyBatisPlus {
 
-    public static String OUTFILE = "D://workspace//idea//ossTest//src//main//java";
-    public static String OUTFILE_RESOURCE = "D://workspace//idea//ossTest//src//main//resource";
+    public static String OUTFILE = "";
+    public static String OUTFILE_RESOURCE = "";
     public static final String URL = "jdbc:mysql://localhost:3306/mall?useUnicode=true&characterEncoding=utf-8&useSSL=true";
     public static final String USERNAME = "root";
     public static final String PASSWORD = "root123@W";
 
     static {
-        File file = new File("D://workspace//idea//ossTest//src//main//");
-        System.out.println(file.getAbsolutePath());
-        OUTFILE += "java";
-        OUTFILE_RESOURCE += "resources";
+        File file = new File("D://workspace//idea//ossTest//generator//");
+        String path = file.getPath();
+        OUTFILE = path + File.separator + "java";
+        OUTFILE_RESOURCE = path + File.separator + "resources";
     }
 
     public static void main(String[] args) {
