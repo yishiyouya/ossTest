@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.badfox</groupId>
-    <artifactId>ossTest</artifactId>
+    <artifactId>basicpro</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>ossTest</name>
-    <description>ossTest</description>
+    <name>basicpro</name>
+    <description>basicpro</description>
     <properties>
         <java.version>8</java.version>
     </properties>
@@ -211,7 +211,7 @@
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.badfox.osstest.OssTestApplication</mainClass>
+                    <mainClass>com.badfox.basicpro.BasicProApplication</mainClass>
                 </configuration>
                 <executions>
                     <execution>
