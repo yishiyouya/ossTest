@@ -9,7 +9,7 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-public class MyRunTask implements Runnable {
+public class RunTask implements Runnable {
 
     private String id;
     private String cron;

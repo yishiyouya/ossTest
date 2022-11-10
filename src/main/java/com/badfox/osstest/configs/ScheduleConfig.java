@@ -1,6 +1,6 @@
 package com.badfox.osstest.configs;
 
-import com.badfox.osstest.pojo.MyTask;
+import com.badfox.osstest.thread.RunTask;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.scheduling.Trigger;
@@ -15,9 +15,9 @@ import java.util.*;
 import java.util.concurrent.ScheduledFuture;
 
 //@Configuration
-public class MyScheduleConfig implements SchedulingConfigurer {
+public class ScheduleConfig implements SchedulingConfigurer {
 
-    protected static Logger logger = LoggerFactory.getLogger(MyScheduleConfig.class);
+    protected static Logger logger = LoggerFactory.getLogger(ScheduleConfig.class);
 
     private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -25,25 +25,14 @@ public class MyScheduleConfig implements SchedulingConfigurer {
 
     private static Map<String, ScheduledFuture<?>> scheduledFutureMap = new HashMap<>();
 
-    private static List<MyTask> taskList = new ArrayList<>();
 
     static {
         threadPoolTaskScheduler.initialize();
     }
 
-    private List<MyTask> getAllTasks() throws Exception {
-        List<MyTask> list = new ArrayList<>();
-        int tCnt = 10;
-        for (int i = 0; i < tCnt; i++) {
-            MyTask myTask = new MyTask(i + "", "0/" + i + " 0/5 00 * * ?", "beanName" + i);
-            list.add(myTask);
-        }
-        return list;
-    }
-
     @Override
     public void configureTasks(ScheduledTaskRegistrar taskRegistrar) {
-        /*List<MyTask> tasks = null;
+        /*List<MyRunTask> tasks = null;
         try {
             tasks = getAllTasks();
             logger.info("定时任务启动,预计启动任务数量={}; time={}", tasks.size(), sdf.format(new Date()));
@@ -54,7 +43,7 @@ public class MyScheduleConfig implements SchedulingConfigurer {
             //通过校验的数据执行定时任务
             int count = 0;
             if (!tasks.isEmpty()) {
-                for (MyTask task : tasks) {
+                for (MyRunTask task : tasks) {
                     try {
                         //满足条件的task才执行
                         if (Integer.parseInt(task.getId()) % 2 == 0) {
@@ -75,7 +64,7 @@ public class MyScheduleConfig implements SchedulingConfigurer {
         }*/
     }
 
-    private static Runnable getRunnable(MyTask task) {
+    private static Runnable getRunnable(RunTask task) {
         return new Runnable() {
             @Override
             public void run() {
@@ -89,7 +78,7 @@ public class MyScheduleConfig implements SchedulingConfigurer {
     }
 
 
-    private static Trigger getTrigger(MyTask task) {
+    private static Trigger getTrigger(RunTask task) {
         return new Trigger() {
             @Override
             public Date nextExecutionTime(TriggerContext triggerContext) {
@@ -103,13 +92,13 @@ public class MyScheduleConfig implements SchedulingConfigurer {
 
     }
 
-    private List<MyTask> checkDataList(List<MyTask> list) {
+    private List<RunTask> checkDataList(List<RunTask> list) {
         String errMsg = "";
 
         return list;
     }
 
-    public static String checkOneData(MyTask task) {
+    public static String checkOneData(RunTask task) {
         String result = "success";
         Class cal = null;
 
@@ -122,7 +111,7 @@ public class MyScheduleConfig implements SchedulingConfigurer {
      * @param task
      * @param
      */
-    public static void start(MyTask task) {
+    public static void start(RunTask task) {
         ScheduledFuture<?> scheduledFuture =
                 threadPoolTaskScheduler.schedule(getRunnable(task), getTrigger(task));
         scheduledFutureMap.put(task.getId(), scheduledFuture);
@@ -134,7 +123,7 @@ public class MyScheduleConfig implements SchedulingConfigurer {
      *
      * @param task
      */
-    public static void cancel(MyTask task) {
+    public static void cancel(RunTask task) {
         ScheduledFuture<?> scheduledFuture = scheduledFutureMap.get(task.getId());
 
         if (scheduledFuture != null && !scheduledFuture.isCancelled()) {
@@ -152,7 +141,7 @@ public class MyScheduleConfig implements SchedulingConfigurer {
      * @param task
      * @param
      */
-    public static void reset(MyTask task) {
+    public static void reset(RunTask task) {
         logger.info("修改定时任务开始" + task.getId());
         cancel(task);
         start(task);

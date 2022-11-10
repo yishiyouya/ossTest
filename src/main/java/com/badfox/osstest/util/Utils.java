@@ -1,6 +1,6 @@
 package com.badfox.osstest.util;
 
-import com.badfox.osstest.thread.MyRunTask;
+import com.badfox.osstest.thread.RunTask;
 import org.springframework.scheduling.config.TriggerTask;
 import org.springframework.scheduling.support.CronTrigger;
 
@@ -53,7 +53,7 @@ public class Utils {
     }
 
     public static TriggerTask triggerTask(String taskId, String cron) {
-        MyRunTask task = new MyRunTask();
+        RunTask task = new RunTask();
         task.setId(taskId);
         task.setCron(cron);
         return new TriggerTask(task, triggerContext -> {

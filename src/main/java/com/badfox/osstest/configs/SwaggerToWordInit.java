@@ -26,7 +26,7 @@ public class SwaggerToWordInit implements ApplicationRunner {
 
     @Value("${server.port}")
     private String port;
-    @Value("${spring.name}")
+    @Value("${spring.application.name}")
     private String proName;
 
     public OutputStream getOutPutStream(String path, String fileName) throws FileNotFoundException {

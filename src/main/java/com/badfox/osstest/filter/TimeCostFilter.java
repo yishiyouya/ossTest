@@ -15,7 +15,7 @@ import java.io.IOException;
  */
 @Slf4j
 @WebFilter(filterName = "MyTimeCostFilter", urlPatterns = "/*")
-public class MyTimeCostFilter implements Filter {
+public class TimeCostFilter implements Filter {
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
         Filter.super.init(filterConfig);
